@@ -5,3 +5,5 @@ export * from './cliente.controller';
 export * from './mascota.controller';
 export * from './rol-usuario.controller';
 export * from './usuario-rol.controller';
+export * from './usuario.controller';
+export * from './rol.controller';
