@@ -4,18 +4,12 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Rol} from '../models';
 import {RolRepository} from '../repositories';
@@ -23,8 +17,8 @@ import {RolRepository} from '../repositories';
 export class RolController {
   constructor(
     @repository(RolRepository)
-    public rolRepository : RolRepository,
-  ) {}
+    public rolRepository: RolRepository,
+  ) { }
 
   @post('/rols')
   @response(200, {
@@ -36,13 +30,12 @@ export class RolController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(Rol, {
-            title: 'NewRol',
-            
+            title: 'NewRol'
           }),
         },
       },
     })
-    rol: Rol,
+    rol: Omit<Rol, 'id'>,
   ): Promise<Rol> {
     return this.rolRepository.create(rol);
   }
@@ -105,7 +98,7 @@ export class RolController {
     },
   })
   async findById(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @param.filter(Rol, {exclude: 'where'}) filter?: FilterExcludingWhere<Rol>
   ): Promise<Rol> {
     return this.rolRepository.findById(id, filter);
@@ -116,7 +109,7 @@ export class RolController {
     description: 'Rol PATCH success',
   })
   async updateById(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @requestBody({
       content: {
         'application/json': {
@@ -134,7 +127,7 @@ export class RolController {
     description: 'Rol PUT success',
   })
   async replaceById(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @requestBody() rol: Rol,
   ): Promise<void> {
     await this.rolRepository.replaceById(id, rol);
@@ -144,7 +137,7 @@ export class RolController {
   @response(204, {
     description: 'Rol DELETE success',
   })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
+  async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.rolRepository.deleteById(id);
   }
 }

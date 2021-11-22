@@ -1,27 +1,35 @@
 import {
+  Count,
+  CountSchema,
+  Filter,
   repository,
+  Where
 } from '@loopback/repository';
 import {
-  param,
+  del,
   get,
   getModelSchemaRef,
+  getWhereSchemaFor,
+  param,
+  patch,
+  post,
+  requestBody
 } from '@loopback/rest';
 import {
   Rol,
-  Usuario,
+  Usuario
 } from '../models';
 import {RolRepository} from '../repositories';
 
 export class RolUsuarioController {
   constructor(
-    @repository(RolRepository)
-    public rolRepository: RolRepository,
+    @repository(RolRepository) protected rolRepository: RolRepository,
   ) { }
 
-  @get('/rols/{id}/usuario', {
+  @get('/rols/{id}/usuarios', {
     responses: {
       '200': {
-        description: 'Usuario belonging to Rol',
+        description: 'Array of Rol has many Usuario',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(Usuario)},
@@ -30,9 +38,73 @@ export class RolUsuarioController {
       },
     },
   })
-  async getUsuario(
+  async find(
+    @param.path.number('id') id: number,
+    @param.query.object('filter') filter?: Filter<Usuario>,
+  ): Promise<Usuario[]> {
+    return this.rolRepository.usuarios(id).find(filter);
+  }
+
+  @post('/rols/{id}/usuarios', {
+    responses: {
+      '200': {
+        description: 'Rol model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Usuario)}},
+      },
+    },
+  })
+  async create(
     @param.path.number('id') id: typeof Rol.prototype.id,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Usuario, {
+            title: 'NewUsuarioInRol',
+            exclude: ['id'],
+            optional: ['rolId']
+          }),
+        },
+      },
+    }) usuario: Omit<Usuario, 'id'>,
   ): Promise<Usuario> {
-    return this.rolRepository.usuario(id);
+    return this.rolRepository.usuarios(id).create(usuario);
+  }
+
+  @patch('/rols/{id}/usuarios', {
+    responses: {
+      '200': {
+        description: 'Rol.Usuario PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async patch(
+    @param.path.number('id') id: number,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Usuario, {partial: true}),
+        },
+      },
+    })
+    usuario: Partial<Usuario>,
+    @param.query.object('where', getWhereSchemaFor(Usuario)) where?: Where<Usuario>,
+  ): Promise<Count> {
+    return this.rolRepository.usuarios(id).patch(usuario, where);
+  }
+
+  @del('/rols/{id}/usuarios', {
+    responses: {
+      '200': {
+        description: 'Rol.Usuario DELETE success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async delete(
+    @param.path.number('id') id: number,
+    @param.query.object('where', getWhereSchemaFor(Usuario)) where?: Where<Usuario>,
+  ): Promise<Count> {
+    return this.rolRepository.usuarios(id).delete(where);
   }
 }
